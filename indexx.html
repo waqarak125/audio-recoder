@@ -1,55 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Record Audio</title>
+  <meta charset="UTF-8">
+  <title>Audio Recorder</title>
 </head>
 <body>
-  <h2>Record and Send Audio</h2>
+  <h2>Audio Recording</h2>
+
   <button id="start">Start Recording</button>
   <button id="stop" disabled>Stop Recording</button>
+
   <p id="status"></p>
 
   <script>
+    const webhookUrl = "const webhookUrl = "https://e20a-223-123-11-76.ngrok-free.app/webhook-test/919097a3-cde6-4997-9c5d-9545a939a4fb";
+"; // <-- replace with your ngrok
+
     let mediaRecorder;
     let audioChunks = [];
-
-    const webhookUrl = "http://localhost:5678/webhook-test/919097a3-cde6-4997-9c5d-9545a939a4fb"; // <-- PUT YOUR N8N WEBHOOK HERE
 
     document.getElementById('start').onclick = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.start();
       audioChunks = [];
-
-      mediaRecorder.ondataavailable = e => {
-        audioChunks.push(e.data);
-      };
-
       document.getElementById('status').innerText = "Recording...";
       document.getElementById('start').disabled = true;
       document.getElementById('stop').disabled = false;
+
+      mediaRecorder.ondataavailable = event => {
+        audioChunks.push(event.data);
+      };
     };
 
     document.getElementById('stop').onclick = async () => {
       mediaRecorder.stop();
+      document.getElementById('status').innerText = "Uploading...";
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('file', audioBlob, 'recording.webm');
 
-        document.getElementById('status').innerText = "Uploading...";
-
-        try {
-          await fetch(webhookUrl, {
-            method: 'POST',
-            body: formData
-          });
-          document.getElementById('status').innerText = "Uploaded successfully!";
-        } catch (err) {
-          document.getElementById('status').innerText = "Upload failed.";
-        }
-
+        await fetch(webhookUrl, { method: 'POST', body: formData });
+        document.getElementById('status').innerText = "Uploaded!";
         document.getElementById('start').disabled = false;
         document.getElementById('stop').disabled = true;
       };

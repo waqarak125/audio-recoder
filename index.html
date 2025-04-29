@@ -13,7 +13,7 @@
     let mediaRecorder;
     let audioChunks = [];
 
-    const webhookUrl = "https://YOUR-N8N-WEBHOOK-URL/webhook/audio"; // <-- PUT YOUR N8N WEBHOOK HERE
+    const webhookUrl = "http://localhost:5678/webhook-test/919097a3-cde6-4997-9c5d-9545a939a4fb"; // <-- PUT YOUR N8N WEBHOOK HERE
 
     document.getElementById('start').onclick = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
